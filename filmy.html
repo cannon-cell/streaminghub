@@ -8,55 +8,76 @@
 </head>
 <body>
 
-<!-- Anti-debugging protection -->
+<!-- Immediate auth check before any content loads -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-(function() {
+(async function() {
   'use strict';
   
-  const blockedKeys = [
-    { key: 'F12' },
-    { key: 'U', ctrl: true },
-    { key: 'I', ctrl: true, shift: true },
-    { key: 'C', ctrl: true, shift: true },
-    { key: 'S', ctrl: true },
-    { key: 'J', ctrl: true, shift: true },
-    { key: 'K', ctrl: true, shift: true }
-  ];
-
-  document.addEventListener('keydown', function(e) {
-    for (let blocked of blockedKeys) {
-      if (e.key === blocked.key && 
-          (!blocked.ctrl || e.ctrlKey) && 
-          (!blocked.shift || e.shiftKey)) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-      }
-    }
-  });
-
-  document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    return false;
-  });
-
-  let devtools = { open: false, orientation: null };
-  const threshold = 160;
-
-  setInterval(function() {
-    if (window.outerHeight - window.innerHeight > threshold || 
-        window.outerWidth - window.innerWidth > threshold) {
-      if (!devtools.open) {
-        devtools.open = true;
-        console.log('Developer tools detected');
-      }
-    } else {
-      devtools.open = false;
-    }
-  }, 500);
-
+  const SUPABASE_URL = "https://jjmnacolebxsifmnmqks.supabase.co";
+  const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpqbW5hY29sZWJ4c2lmbW5tcWtzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU3OTcyNDQsImV4cCI6MjA3MTM3MzI0NH0.1hNoBQ4wDuA_t_vscorQ6FRb-aW8IxHEDxuZKEhndv0";
+  
+  const tempClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const { data: { user } } = await tempClient.auth.getUser();
+  
+  if (!user) {
+    window.location.href = 'index.html';
+    return;
+  }
+  
+  // If user is authenticated, continue loading the page
+  loadProtectedContent();
 })();
-</script>
+
+function loadProtectedContent() {
+  // Anti-debugging protection
+  (function() {
+    'use strict';
+    
+    const blockedKeys = [
+      { key: 'F12' },
+      { key: 'U', ctrl: true },
+      { key: 'I', ctrl: true, shift: true },
+      { key: 'C', ctrl: true, shift: true },
+      { key: 'S', ctrl: true },
+      { key: 'J', ctrl: true, shift: true },
+      { key: 'K', ctrl: true, shift: true }
+    ];
+
+    document.addEventListener('keydown', function(e) {
+      for (let blocked of blockedKeys) {
+        if (e.key === blocked.key && 
+            (!blocked.ctrl || e.ctrlKey) && 
+            (!blocked.shift || e.shiftKey)) {
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      }
+    });
+
+    document.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      return false;
+    });
+
+    let devtools = { open: false, orientation: null };
+    const threshold = 160;
+
+    setInterval(function() {
+      if (window.outerHeight - window.innerHeight > threshold || 
+          window.outerWidth - window.innerWidth > threshold) {
+        if (!devtools.open) {
+          devtools.open = true;
+          console.log('Developer tools detected');
+        }
+      } else {
+        devtools.open = false;
+      }
+    }, 500);
+
+  })();
+}
 
 <!-- Encoded header -->
 <div id="header-encoded"></div>
@@ -65,8 +86,6 @@
 
 <!-- Encoded footer -->
 <div id="footer-encoded"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 (function() {
