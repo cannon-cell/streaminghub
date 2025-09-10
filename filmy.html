@@ -48,7 +48,7 @@
         window.outerWidth - window.innerWidth > threshold) {
       if (!devtools.open) {
         devtools.open = true;
-        window.location.href = 'https://www.google.com';
+        console.log('Developer tools detected');
       }
     } else {
       devtools.open = false;
