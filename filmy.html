@@ -92,6 +92,16 @@
 
   const db = window.supabase.createClient(config.url, config.key);
 
+  async function checkAuth() {
+    const { data: { user } } = await db.auth.getUser();
+    if (!user) {
+      // User not logged in, redirect to main page
+      window.location.href = 'index.html';
+      return false;
+    }
+    return true;
+  }
+
   // Protected utility functions
   const utils = {
     delay: (ms) => new Promise(r => setTimeout(r, ms)),
@@ -270,15 +280,19 @@
   window.UI = UI;
   window.Auth = Auth;
 
-  // Initialize when ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function() {
-      initProtectedContent();
-      setTimeout(() => UI.search('', { sort: 'new' }), 100);
-    });
-  } else {
+  async function initialize() {
+    const isAuthenticated = await checkAuth();
+    if (!isAuthenticated) return; // Stop if not authenticated
+    
     initProtectedContent();
     setTimeout(() => UI.search('', { sort: 'new' }), 100);
+  }
+
+  // Initialize when ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+  } else {
+    initialize();
   }
 
 })();
